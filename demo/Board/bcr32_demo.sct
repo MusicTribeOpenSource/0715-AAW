@@ -1,0 +1,44 @@
+#! armcc -E
+; *************************************************************
+; BCR32 bare-metal demo scatter file (ARMCC 5)
+; Memory map of the BCR32:
+;   0x08000000  64 KB  Bootloader (kept, never written by this project)
+;   0x08010000 192 KB  Application  <- this image
+;   0x08040000 256 KB  EEPROM emulation area (not used here)
+; The bootloader reads the pointer at 0x08010000 (SW info root), checks the
+; SW info block it points to and jumps to its fnSoftwareEntry (Reset_Handler).
+; *************************************************************
+
+#define APPL_BASE       0x08010000
+#define APPL_SIZE       0x00030000
+#define SW_ROOT_SIZE    4
+#define SW_INFO_SIZE    16
+
+#define IRAM_BASE       0x20000000
+#define IRAM_SIZE       0x00020000
+
+LR_APPL APPL_BASE APPL_SIZE
+{
+  ER_SW_INFO_ROOT APPL_BASE SW_ROOT_SIZE
+  {
+    startup_bcr32.o (SWINFO_ROOT, +FIRST)
+  }
+  ER_SW_INFO (APPL_BASE + SW_ROOT_SIZE) SW_INFO_SIZE
+  {
+    startup_bcr32.o (SWINFO, +FIRST)
+  }
+  ER_IROM +0
+  {
+    startup_bcr32.o (RESET, +FIRST)
+    *(InRoot$$Sections)
+    .ANY (+RO)
+    .ANY (+XO)
+  }
+  ; main SRAM: data, system stack (MSP)
+  RW_IRAM1 IRAM_BASE IRAM_SIZE
+  {
+    .ANY (+RW +ZI)
+    startup_bcr32.o (STACK)
+  }
+  ; TCMSRAM (CCM, 64 KB, CPU only, no DMA): reserved for later use
+}
