@@ -3,6 +3,7 @@
  *
  * Reassembles SysEx messages from the USB-MIDI event packets of each cable and handles:
  *   0x74 mode query       -> reply F0 00 20 32 00 64 74 00 F7 ("application") on the same cable
+ *   0x00 version query    -> reply F0 00 20 32 00 64 00 01 00 00 MAIN SUB BUG F7 (version.h)
  *   0x77 enter bootloader -> Sysex_BootRequested() becomes 1; the main loop starts the bootloader
  * Header F0 00 20 32, device 7F or 00, model 64 or 7F, exactly 8 bytes; anything else is ignored.
  * Main loop only.

@@ -16,6 +16,7 @@ the BCR32 bootloader; before that the running application has to hand over to it
 This document specifies only that hand-over:
 
 - how a host finds out whether the application or the bootloader is running (`0x74`),
+- how a host reads the version of the running application (`0x00`),
 - how the host makes the application start the bootloader (`0x77`).
 
 The transfer of the image to the bootloader is not part of this document; `demo/tools/update/windows/update.exe`
@@ -50,10 +51,10 @@ The bootloader also starts by itself after a reset when no valid application is 
 | 4 | `7F` | Device byte. The application also accepts its device address `00`. |
 | 5 | `64` | Model byte (BCR32). The application also accepts `7F`. |
 | 6 | `cmd` | Command code |
-| 7 | `F7` | End of SysEx (both commands carry no payload) |
+| 7 | `F7` | End of SysEx (the commands carry no payload) |
 
 Messages with another manufacturer, device or model byte, or with another length, are ignored
-silently. The application accepts both commands on either of its USB MIDI ports and answers on
+silently. The application accepts the commands on either of its USB MIDI ports and answers on
 the port the request came from. DIN MIDI is not used for these commands.
 
 ---
@@ -86,7 +87,16 @@ In the application:
 The application data in flash is not changed; without an update a reset starts the
 application again.
 
-### 4.3 Entering the bootloader with the keys
+### 4.3 `0x00` Version query
+
+Request: `F0 00 20 32 7F 64 00 F7` (exactly 8 bytes).
+
+Reply: `F0 00 20 32 00 64 00 01 00 00 MAIN SUB BUG F7` (14 bytes)
+
+Bytes 7–9 are the product version (`01 00 00`), bytes 10–12 the version of the running
+application (`demo/App/version.h`, e.g. `00 00 01` for 0.0.1).
+
+### 4.4 Entering the bootloader with the keys
 
 Holding **T1 + T2 + T3 + T4** together on the BCR32 has the same effect as `0x77`. This is the way
 in when no host software can send SysEx, or when the application does not respond.
@@ -133,6 +143,8 @@ packets, e.g. on cable 0:
 | Purpose | Bytes |
 | --- | --- |
 | Mode query | `F0 00 20 32 7F 64 74 F7` |
+| Version query | `F0 00 20 32 7F 64 00 F7` |
+| Reply: version 0.0.1 | `F0 00 20 32 00 64 00 01 00 00 00 00 01 F7` |
 | Reply: application | `F0 00 20 32 00 64 74 00 F7` |
 | Reply: bootloader | `F0 00 20 32 7F 64 74 01 F7` |
 | Enter bootloader | `F0 00 20 32 7F 64 77 F7` |

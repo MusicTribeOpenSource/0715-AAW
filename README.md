@@ -107,12 +107,31 @@ The build writes the firmware update file
 (each has its own date and time); delete them by hand when no longer needed. Install it on the
 BCR32 over USB:
 
+> [!WARNING]
+> Before installing custom firmware with `update.exe`, update the BCR32 to official firmware
+> version 1.0.5 or later. With an older official firmware, faulty custom firmware may render the
+> device permanently inoperable ("bricked").
+>
+> If the custom firmware does not work after an update made from official firmware 1.0.5 or later,
+> press and hold encoders 17, 18, 25 and 26 while switching the BCR32 on: the device stays in the
+> bootloader, and the official firmware can be installed again.
+>
+> Do not disconnect the USB cable or switch off the BCR32 while an update is in progress: a loss
+> of power during the update may also brick the device. Proceed with care.
+
 ```
 demo\tools\update\windows\update.exe demo\tools\update\BCR32_FW_V<version>_<date>_<time>.bin
 ```
 
 The tool makes the running demo start the bootloader over USB, transfers the image and restarts
 the device; no key needs to be pressed.
+
+To install again while the BCR32 already runs custom firmware (for example this demo), add
+`-force` before the file name:
+
+```
+demo\tools\update\windows\update.exe -force demo\tools\update\BCR32_FW_V<version>_<date>_<time>.bin
+```
 
 ### Troubleshooting
 

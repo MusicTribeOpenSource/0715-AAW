@@ -20,7 +20,7 @@
  * External SPI flash (W25X40CL, DMA, bsp_flash.c): self test on sector 127 at power up
  * (flash_test.c).
  * Internal flash (bsp_iflash.c, sector 5 only): self test at power up (iflash_test.c).
- * USB SysEx (sysex.c): 0x74 mode query answered, 0x77 starts the bootloader.
+ * USB SysEx (sysex.c): 0x74 mode query and 0x00 version query answered, 0x77 starts the bootloader.
  * T1 + T2 + T3 + T4 (BTN18..21) held together: start the bootloader (boot_jump.c) for a
  * firmware update with tools/update/windows/update.exe.
  */
@@ -230,7 +230,7 @@ static void OnInputEvent(const InputEvent_t *ev)
  * previous IN transfer is pending */
 static void UsbMidiLoopback(void)
 {
-    static uint8_t buf[64 + 16];
+    static uint8_t buf[64 + 32];
     uint32_t n;
 
     if ((IsUsbConnected() == 0U) || (UsbMidiTxBusy() != 0U))
